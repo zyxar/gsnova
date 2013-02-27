@@ -3,19 +3,19 @@ package proxy
 import (
 	"bufio"
 	"bytes"
-	"common"
-	"event"
+	"github.com/yinqiwen/gsnova/src/common"
+	"github.com/yinqiwen/gsnova/src/event"
 	"fmt"
 	"io"
 	"log"
-	"misc/socks"
+	"github.com/yinqiwen/gsnova/src/misc/socks"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync/atomic"
 	"time"
-	"util"
+	"github.com/yinqiwen/gsnova/src/util"
 )
 
 var CRLFs = []byte("\r\n\r\n")

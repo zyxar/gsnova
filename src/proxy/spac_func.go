@@ -2,8 +2,8 @@ package proxy
 
 import (
 	"log"
-	"misc/gfwlist"
-	"misc/iprange"
+	"github.com/yinqiwen/gsnova/src/misc/gfwlist"
+	"github.com/yinqiwen/gsnova/src/misc/iprange"
 	"net"
 	"net/http"
 	"strings"

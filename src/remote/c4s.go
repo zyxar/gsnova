@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"event"
+	"github.com/yinqiwen/gsnova/src/event"
 	"fmt"
 	"io"
 	"io/ioutil"

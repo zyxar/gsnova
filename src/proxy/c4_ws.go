@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
-	"event"
+	"github.com/yinqiwen/gsnova/src/event"
 	"fmt"
 	"log"
 	"net"

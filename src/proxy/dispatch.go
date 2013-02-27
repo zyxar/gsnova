@@ -2,11 +2,11 @@ package proxy
 
 import (
 	"bufio"
-	"event"
+	"github.com/yinqiwen/gsnova/src/event"
 	"fmt"
 	"io"
 	"log"
-	"misc/socks"
+	"github.com/yinqiwen/gsnova/src/misc/socks"
 	"net"
 	"net/http"
 	"strings"

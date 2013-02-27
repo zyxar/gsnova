@@ -3,7 +3,7 @@ package proxy
 import (
 	"bufio"
 	"bytes"
-	"common"
+	"github.com/yinqiwen/gsnova/src/common"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -16,7 +16,7 @@ import (
 	"strings"
 	"text/template"
 	"time"
-	"util"
+	"github.com/yinqiwen/gsnova/src/util"
 )
 
 var spac_script_path []string

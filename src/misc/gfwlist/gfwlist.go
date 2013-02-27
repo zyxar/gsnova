@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"util"
+	"github.com/yinqiwen/gsnova/src/util"
 )
 
 type gfwListRule interface {

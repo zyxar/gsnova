@@ -2,9 +2,9 @@ package proxy
 
 import (
 	"bytes"
-	"common"
+	"github.com/yinqiwen/gsnova/src/common"
 	"crypto/tls"
-	"event"
+	"github.com/yinqiwen/gsnova/src/event"
 	"fmt"
 	"io"
 	"log"
@@ -13,7 +13,7 @@ import (
 	"net/url"
 	"sync/atomic"
 	"time"
-	"util"
+	"github.com/yinqiwen/gsnova/src/util"
 )
 
 const (
