@@ -5,7 +5,7 @@ import (
 	"crypto/rc4"
 	"errors"
 	"strconv"
-	"github.com/yinqiwen/gsnova/src/util"
+	"github.com/zyxar/gsnova/src/util"
 )
 
 var rc4Key string

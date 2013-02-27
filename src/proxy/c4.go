@@ -2,10 +2,10 @@ package proxy
 
 import (
 	"bytes"
-	"github.com/yinqiwen/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/common"
 	"encoding/binary"
 	"errors"
-	"github.com/yinqiwen/gsnova/src/event"
+	"github.com/zyxar/gsnova/src/event"
 	"io"
 	"log"
 	"net"
@@ -15,7 +15,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-	"github.com/yinqiwen/gsnova/src/util"
+	"github.com/zyxar/gsnova/src/util"
 )
 
 var C4Enable bool

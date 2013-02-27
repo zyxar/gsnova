@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"github.com/yinqiwen/gsnova/src/util"
+	"github.com/zyxar/gsnova/src/util"
 )
 
 type HTTPConnectionEvent struct {

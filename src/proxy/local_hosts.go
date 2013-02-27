@@ -1,7 +1,7 @@
 package proxy
 
 import (
-	"github.com/yinqiwen/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/common"
 	"io/ioutil"
 	"log"
 	"net"
@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"github.com/yinqiwen/gsnova/src/util"
+	"github.com/zyxar/gsnova/src/util"
 )
 
 type regexHost struct {

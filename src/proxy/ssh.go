@@ -3,7 +3,7 @@ package proxy
 import (
 	"bufio"
 	"code.google.com/p/go.crypto/ssh"
-	"github.com/yinqiwen/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/common"
 	"crypto"
 	"crypto/dsa"
 	"crypto/rsa"
@@ -11,7 +11,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	"github.com/yinqiwen/gsnova/src/event"
+	"github.com/zyxar/gsnova/src/event"
 	"fmt"
 	"github.com/yinqiwen/godns"
 	"io"
@@ -23,7 +23,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/yinqiwen/gsnova/src/util"
+	"github.com/zyxar/gsnova/src/util"
 )
 
 var sshLocalProxy *url.URL

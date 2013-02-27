@@ -1,20 +1,20 @@
 package main
 
 import (
-	"github.com/yinqiwen/gsnova/src/common"
-	"github.com/yinqiwen/gsnova/src/event"
+	"github.com/zyxar/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/event"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"path/filepath"
-	"github.com/yinqiwen/gsnova/src/proxy"
-	"github.com/yinqiwen/gsnova/src/remote"
+	"github.com/zyxar/gsnova/src/proxy"
+	"github.com/zyxar/gsnova/src/remote"
 	"runtime"
 	"sync/atomic"
 	"time"
-	"github.com/yinqiwen/gsnova/src/util"
+	"github.com/zyxar/gsnova/src/util"
 )
 
 const (

@@ -3,9 +3,9 @@ package proxy
 import (
 	"bufio"
 	"bytes"
-	"github.com/yinqiwen/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/common"
 	"crypto/tls"
-	"github.com/yinqiwen/gsnova/src/event"
+	"github.com/zyxar/gsnova/src/event"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -17,7 +17,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/yinqiwen/gsnova/src/util"
+	"github.com/zyxar/gsnova/src/util"
 )
 
 const (

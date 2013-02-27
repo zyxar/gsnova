@@ -2,10 +2,10 @@ package proxy
 
 import (
 	"bytes"
-	"github.com/yinqiwen/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/common"
 	"crypto/rc4"
 	"encoding/base64"
-	"github.com/yinqiwen/gsnova/src/event"
+	"github.com/zyxar/gsnova/src/event"
 	"fmt"
 	"io/ioutil"
 	"log"

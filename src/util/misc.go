@@ -5,7 +5,7 @@ import (
 	"crypto/dsa"
 	"fmt"
 	"math/big"
-	"github.com/yinqiwen/gsnova/src/misc/myasn1"
+	"github.com/zyxar/gsnova/src/misc/myasn1"
 	"net"
 	"net/http"
 	"os/exec"
