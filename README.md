@@ -86,23 +86,33 @@ SPAC主要是一组规则，规则文件以JSON格式定义，例如：
 -------
 > 有自行修改需求的用户请看这里：
 >* 首先，需要安装Go编译器，[安装指南](http://golang.org/doc/install)；   
-    主要设置两个环境变量：  
-    
+    主要设置两个环境变量：
+
     export GOROOT=$HOME/go   //注意设置为Go编译器安装地址
     export PATH=$PATH:$GOROOT/bin
->* 下载gnsova源码，可用git下载
 
-    git clone https://github.com/yinqiwen/gsnova.git
+>* 下载gnsova源码：
+
+    go get -u code.google.com/p/go.crypto
+    go get -u code.google.com/p/go.net
+    go get -u code.google.com/p/snappy-go
+    go get -u github.com/yinqiwen/godns   // 下载更新依赖的godns
+    go get -v github.com/zyxar/gsnova
+
+>  或者用git下载
+
+    cd $GOPATH/src/github.com
+    git clone https://github.com/zyxar/gsnova.git
 
 >* 编译   
 
-    export GOPATH=GSnova Source Dir   //注意目录为绝对路径
-    go get -u github.com/yinqiwen/godns   // 下载更新依赖的godns   
-    go install -v ...   
-可执行文件编译到了$GOPATH/bin下。注意此可执行文件依赖conf，web等目录下文件，不能直接运行。   
-同时，提供了shell脚本简化编译打包过程。windows用户可在cygwin下执行./build.sh dist gsnova得到编译后的gsnova发布包。
+    cd $GOPATH/src/github.com/zyxar/gosnova/src/main
+    go build
+
+可执行文件编译到了当前目录下。注意此可执行文件依赖conf，web等目录下文件，不能直接运行。
 
 
 其它
 -------
 参考[Snova](http://code.google.com/p/snova/)有一些其他相关信息
+
