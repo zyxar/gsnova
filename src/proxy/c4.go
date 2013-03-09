@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -26,14 +27,18 @@ var total_c4_conn_num = int32(0)
 var total_c4_routines = int32(0)
 
 type C4Config struct {
-	Compressor      uint32
-	Encrypter       uint32
-	UA              string
-	ConnectionMode  string
-	ReadTimeout     uint32
-	MaxConn         uint32
-	WSConnKeepAlive uint32
-	Proxy           string
+	Compressor             uint32
+	Encrypter              uint32
+	UA                     string
+	ConnectionMode         string
+	ReadTimeout            uint32
+	MaxConn                uint32
+	WSConnKeepAlive        uint32
+	InjectRange            []*regexp.Regexp
+	FetchLimitSize         uint32
+	ConcurrentRangeFetcher uint32
+	Proxy                  string
+	MultiRangeFetchEnable  bool
 }
 
 var c4_cfg *C4Config
@@ -72,14 +77,13 @@ func (task *C4CumulateTask) fillContent(reader io.Reader) error {
 					evv = event.ExtractEvent(evv)
 					idx := evv.GetHash() % uint32(len(c4WriteCBChannels))
 					c4WriteCBChannels[idx] <- evv
-					//c4 := getC4Session(evv.GetHash())
+					//					c4 := getC4Session(evv.GetHash())
 					//					if nil == c4 {
 					//						if evv.GetType() != event.EVENT_TCP_CONNECTION_TYPE {
-					//							//log.Printf("[ERROR]No C4 session found for %d with type:%T\n", evv.GetHash(), evv)
+					//							log.Printf("[ERROR]No C4 session found for %d with type:%T\n", evv.GetHash(), evv)
 					//						}
 					//					} else {
-					//						c4.writeChannel <- evv
-					//						//c4.handleTunnelResponse(c4.sess, evv)
+					//						c4.handleTunnelResponse(c4.sess, evv)
 					//					}
 				} else {
 					log.Printf("[ERROR]Decode event failed %v with content len:%d\n", err, task.chunkLen)
@@ -95,12 +99,14 @@ func (task *C4CumulateTask) fillContent(reader io.Reader) error {
 }
 
 type C4RemoteSession struct {
-	sess              *SessionConnection
-	remote_proxy_addr string
-	server            string
-	closed            bool
-	manager           *C4
-	//	writeChannel      chan event.Event
+	sess                   *SessionConnection
+	remote_proxy_addr      string
+	server                 string
+	closed                 bool
+	manager                *C4
+	injectRange            bool
+	remoteHttpClientEnable bool
+	rangeWorker            *rangeFetchTask
 }
 
 func (c4 *C4RemoteSession) Close() error {
@@ -110,11 +116,11 @@ func (c4 *C4RemoteSession) Close() error {
 		closeEv.SetHash(c4.sess.SessionID)
 		c4.offerRequestEvent(closeEv)
 	}
-//	if nil != c4.writeChannel {
-//		c4.writeChannel <- nil
-//	}
 	c4.closed = true
 	removeC4SessionTable(c4)
+	if nil != c4.rangeWorker {
+		c4.rangeWorker.Close()
+	}
 	return nil
 }
 
@@ -145,23 +151,15 @@ func writeCBLoop(index uint32) {
 				c4 := getC4Session(ev.GetHash())
 				if nil != c4 {
 					c4.handleTunnelResponse(c4.sess, ev)
+				} else {
+					if ev.GetType() != event.EVENT_TCP_CONNECTION_TYPE {
+						log.Printf("[ERROR]No session[%d] found for %T\n", ev.GetHash(), ev)
+					}
 				}
 			}
 		}
 	}
 }
-
-//func (c4 *C4RemoteSession) writerLoop() {
-//	for {
-//		select {
-//		case ev := <-c4.writeChannel:
-//			if nil == ev {
-//				return
-//			}
-//			c4.handleTunnelResponse(c4.sess, ev)
-//		}
-//	}
-//}
 
 func (c4 *C4RemoteSession) handleTunnelResponse(conn *SessionConnection, ev event.Event) error {
 	switch ev.GetType() {
@@ -189,10 +187,66 @@ func (c4 *C4RemoteSession) handleTunnelResponse(conn *SessionConnection, ev even
 		if n < len(chunk.Content) {
 			log.Printf("[%d]Less data written[%d-%d] to local client.\n", ev.GetHash(), n, len(chunk.Content))
 		}
+		chunk.Content = nil
+	case event.HTTP_RESPONSE_EVENT_TYPE:
+		log.Printf("Session[%d]Handle HTTP Response event with range task:%p\n", conn.SessionID, c4.rangeWorker)
+		res := ev.(*event.HTTPResponseEvent)
+		httpres := res.ToResponse()
+		//log.Printf("Session[%d]Recv res %d %v\n", ev.GetHash(), httpres.StatusCode, httpres.Header)
+		if nil != c4.rangeWorker {
+			httpWriter := func(preq *http.Request) error {
+				return c4.writeHttpRequest(preq)
+			}
+			pres, err := c4.rangeWorker.ProcessAyncResponse(httpres, httpWriter)
+			if nil == err {
+				if nil != pres {
+					//log.Printf("Session[%d] %d %v\n", ev.GetHash(), pres.StatusCode, pres.Header)
+					go pres.Write(conn.LocalRawConn)
+				} else {
+					//log.Printf("Session[%d]NULLL\n", ev.GetHash())
+				}
+			} else {
+				log.Printf("####%v\n", err)
+				c4.Close()
+				conn.Close()
+			}
+		} else {
+			httpres.Write(conn.LocalRawConn)
+		}
 	default:
 		log.Printf("Unexpected event type:%d\n", ev.GetType())
 	}
 	return nil
+}
+
+func (c4 *C4RemoteSession) writeHttpRequest(preq *http.Request) error {
+	ev := new(event.HTTPRequestEvent)
+	ev.FromRequest(preq)
+	ev.SetHash(c4.sess.SessionID)
+	if strings.Contains(ev.Url, "http://") {
+		ev.Url = ev.Url[7+len(preq.Host):]
+	}
+	//log.Printf("Session[%d]Range Request %s\n", c4.sess.SessionID, ev.Url)
+	c4.offerRequestEvent(ev)
+	return nil
+}
+
+func (c4 *C4RemoteSession) doRangeFetch(req *http.Request) error {
+	task := new(rangeFetchTask)
+	task.FetchLimit = int(c4_cfg.FetchLimitSize)
+	task.FetchWorkerNum = int(c4_cfg.ConcurrentRangeFetcher)
+	task.SessionID = c4.sess.SessionID
+	c4.rangeWorker = task
+	//	rh := req.Header.Get("Range")
+	//	if len(rh) > 0 {
+	//		log.Printf("Session[%d] Request  has range:%s\n", c4.sess.SessionID, rh)
+	//	} else {
+	//		log.Printf("Session[%d] Request has no range\n", c4.sess.SessionID)
+	//	}
+	httpWriter := func(preq *http.Request) error {
+		return c4.writeHttpRequest(preq)
+	}
+	return task.AyncGet(req, httpWriter)
 }
 
 func (c4 *C4RemoteSession) Request(conn *SessionConnection, ev event.Event) (err error, res event.Event) {
@@ -200,10 +254,6 @@ func (c4 *C4RemoteSession) Request(conn *SessionConnection, ev event.Event) (err
 	if len(c4.server) == 0 {
 		c4.server = c4.manager.servers.Select().(string)
 	}
-	//	if nil == c4.writeChannel {
-	//		c4.writeChannel = make(chan event.Event, 1024)
-	//		go c4.writerLoop()
-	//	}
 	c4.sess = conn
 	c4.closed = false
 	setC4SessionTable(c4)
@@ -217,7 +267,7 @@ func (c4 *C4RemoteSession) Request(conn *SessionConnection, ev event.Event) (err
 		} else {
 			conn.State = STATE_RECV_HTTP
 		}
-		log.Printf("Session[%d]Request %s\n", req.GetHash(), util.GetURLString(req.RawReq, true))
+		log.Printf("Session[%d] Request %s\n", req.GetHash(), util.GetURLString(req.RawReq, true))
 		if nil != err {
 			log.Printf("Session[%d]Failed to encode request to bytes", req.GetHash())
 			return
@@ -229,7 +279,16 @@ func (c4 *C4RemoteSession) Request(conn *SessionConnection, ev event.Event) (err
 		if strings.Contains(req.Url, "http://") {
 			req.Url = req.Url[7+len(req.RawReq.Host):]
 		}
+		c4.rangeWorker = nil
 		c4.remote_proxy_addr = remote_addr
+		if strings.EqualFold(req.Method, "GET") && c4_cfg.MultiRangeFetchEnable {
+			if c4.injectRange || hostPatternMatched(c4_cfg.InjectRange, req.RawReq.Host) {
+				if nil == c4.doRangeFetch(req.RawReq) {
+					return nil, nil
+				}
+			}
+		}
+
 		c4.offerRequestEvent(req)
 		rest := req.RawReq.ContentLength
 		tmpbuf := make([]byte, 8192)
@@ -287,7 +346,6 @@ func getC4Session(sid uint32) *C4RemoteSession {
 
 func (manager *C4) RecycleRemoteConnection(conn RemoteConnection) {
 	atomic.AddInt32(&total_c4_conn_num, -1)
-	//c4 := conn.(*C4RemoteSession)
 }
 
 func (manager *C4) loginC4(server string) {
@@ -304,6 +362,11 @@ func (manager *C4) GetRemoteConnection(ev event.Event, attrs map[string]string) 
 	conn.manager = manager
 
 	found := false
+	if containsAttr(attrs, ATTR_RANGE) {
+		conn.injectRange = true
+	} else {
+		conn.injectRange = false
+	}
 	if containsAttr(attrs, ATTR_APP) {
 		app := attrs[ATTR_APP]
 		for _, tmp := range manager.servers.ArrayValues() {
@@ -368,7 +431,24 @@ func initC4Config() {
 	if tmp, exist := common.Cfg.GetProperty("C4", "Proxy"); exist {
 		c4_cfg.Proxy = tmp
 	}
+	c4_cfg.ConcurrentRangeFetcher = 5
+	if fetcher, exist := common.Cfg.GetIntProperty("C4", "RangeConcurrentFetcher"); exist {
+		c4_cfg.ConcurrentRangeFetcher = uint32(fetcher)
+	}
+	c4_cfg.FetchLimitSize = 256000
+	if limit, exist := common.Cfg.GetIntProperty("C4", "RangeFetchLimitSize"); exist {
+		c4_cfg.FetchLimitSize = uint32(limit)
+	}
 
+	c4_cfg.MultiRangeFetchEnable = false
+	if enable, exist := common.Cfg.GetIntProperty("C4", "MultiRangeFetchEnable"); exist {
+		c4_cfg.MultiRangeFetchEnable = (enable != 0)
+	}
+
+	c4_cfg.InjectRange = []*regexp.Regexp{}
+	if ranges, exist := common.Cfg.GetProperty("C4", "InjectRange"); exist {
+		c4_cfg.InjectRange = initHostMatchRegex(ranges)
+	}
 	logined = false
 	if ifs, err := net.Interfaces(); nil == err {
 		for _, itf := range ifs {
@@ -408,7 +488,7 @@ func (manager *C4) Init() error {
 	c4HttpClient.Transport = tr
 
 	for i := uint32(0); i < c4_cfg.MaxConn; i++ {
-		c4WriteCBChannels[i] = make(chan event.Event, 1024)
+		c4WriteCBChannels[i] = make(chan event.Event, 10)
 		go writeCBLoop(i)
 	}
 
