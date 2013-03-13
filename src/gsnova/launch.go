@@ -1,8 +1,8 @@
 package main
 
 import (
+	"errors"
 	"flag"
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -55,16 +55,41 @@ func startLocalProxyServer(addr string, proxyServerType int) bool {
 	return true
 }
 
-func main() {
-	path, err := filepath.Abs(os.Args[0])
-	if nil != err {
-		fmt.Println(err)
+func mkConfigDir(path string) (err error) {
+	if path == "" {
+		return os.ErrNotExist
+	}
+	exists, err := isDirExists(path)
+	if err != nil {
 		return
 	}
-	common.Home, _ = filepath.Split(path)
+	if exists {
+		return
+	}
+	return os.Mkdir(path, 0755)
+}
 
+func isDirExists(path string) (bool, error) {
+	stat, err := os.Stat(path)
+	if err == nil {
+		if stat.IsDir() {
+			return true, nil
+		}
+		return false, errors.New(path + " exists but is not a directory")
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
+func main() {
+	var err error
+	if err = mkConfigDir(common.Home); err != nil {
+		log.Fatalln(err)
+	}
 	as_server := flag.Bool("server", false, "Run as remote proxy server")
-	conf := flag.String("file", common.Home+common.Product+".conf", "Specify config file for gsnova")
+	conf := flag.String("file", filepath.Join(common.Home, common.Product+".conf"), "Specify config file for gsnova")
 	event.Init()
 	flag.Parse()
 	if *as_server {

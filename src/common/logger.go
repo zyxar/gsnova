@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 var logWriter *MultiWriter
@@ -59,5 +60,5 @@ func AddLogWriter(writer io.Writer) {
 
 func InitLogger() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.SetOutput(initLogWriter(Home + Product + ".log"))
+	log.SetOutput(initLogWriter(filepath.Join(Home, Product+".log")))
 }

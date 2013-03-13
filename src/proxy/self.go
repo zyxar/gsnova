@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -22,26 +23,27 @@ import (
 var lp *util.DelegateConnListener
 
 func InitSelfWebServer() {
+	dir := filepath.Join(common.Home, "web")
 	lp = util.NewDelegateConnListener()
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Connection", "close")
-		http.FileServer(http.Dir(common.Home+"/web")).ServeHTTP(w, r)
+		http.FileServer(http.Dir(dir)).ServeHTTP(w, r)
 	})
 	http.HandleFunc("/share.html", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Connection", "close")
-		http.FileServer(http.Dir(common.Home+"/web")).ServeHTTP(w, r)
+		http.FileServer(http.Dir(dir)).ServeHTTP(w, r)
 	})
 	http.HandleFunc("/css/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Connection", "close")
-		http.FileServer(http.Dir(common.Home+"/web")).ServeHTTP(w, r)
+		http.FileServer(http.Dir(dir)).ServeHTTP(w, r)
 	})
 	http.HandleFunc("/scripts/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Connection", "close")
-		http.FileServer(http.Dir(common.Home+"/web")).ServeHTTP(w, r)
+		http.FileServer(http.Dir(dir)).ServeHTTP(w, r)
 	})
 	http.HandleFunc("/images/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Connection", "close")
-		http.FileServer(http.Dir(common.Home+"/web")).ServeHTTP(w, r)
+		http.FileServer(http.Dir(dir)).ServeHTTP(w, r)
 	})
 	http.HandleFunc("/pac/gfwlist", func(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path = "/spac/snova-gfwlist.pac"
@@ -67,12 +69,12 @@ func indexHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	dir := common.Home + "/web"
+	dir := filepath.Join(common.Home, "/web")
 	path := "/index.html"
 	if req.URL.Path != "/" {
 		path = req.URL.Path
 	}
-	hf := dir + path
+	hf := filepath.Join(dir, path)
 	if t, err := template.ParseFiles(hf); nil == err {
 		type PageContent struct {
 			Product   string
@@ -84,12 +86,12 @@ func indexHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func processC4ServerPackage(file string, key []byte) error {
-	r, err := zip.OpenReader(common.Home + "/" + file)
+	r, err := zip.OpenReader(filepath.Join(common.Home, file))
 	if err != nil {
 		log.Printf("Failed to zip file for reason:%v", err)
 		return err
 	}
-	w, err := os.Create(common.Home + "/" + string(key) + "_" + file)
+	w, err := os.Create(filepath.Join(common.Home, string(key)+"_"+file))
 	if err != nil {
 		log.Printf("Failed to create zip file for reason:%v", err)
 		return err

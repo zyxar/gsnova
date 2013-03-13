@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"text/template"
@@ -202,11 +203,11 @@ function FindProxyForURL(url, host) {
 
 func load_gfwlist_rule() {
 	var buffer bytes.Buffer
-	if content, err := ioutil.ReadFile(common.Home + "spac/snova-gfwlist.txt"); nil == err {
+	if content, err := ioutil.ReadFile(filepath.Join(common.Home, "spac/snova-gfwlist.txt")); nil == err {
 		buffer.Write(content)
 	}
 	buffer.WriteString("\n")
-	if content, err := ioutil.ReadFile(common.Home + "spac/user-gfwlist.txt"); nil == err {
+	if content, err := ioutil.ReadFile(filepath.Join(common.Home, "spac/user-gfwlist.txt")); nil == err {
 		buffer.Write(content)
 	}
 	init_gfwlist_func(buffer.String())
@@ -233,7 +234,7 @@ func generatePAC(url, date, content string) string {
 	pac.DefaultString = "DIRECT"
 	jscode := []string{}
 
-	if usercontent, err := ioutil.ReadFile(common.Home + "spac/user-gfwlist.txt"); nil == err {
+	if usercontent, err := ioutil.ReadFile(filepath.Join(common.Home, "spac/user-gfwlist.txt")); nil == err {
 		content = content + "\n" + string(usercontent)
 	}
 
@@ -342,7 +343,7 @@ func loadIPRangeFile(ipRepo string) {
 		return
 	}
 	time.Sleep(5 * time.Second)
-	hf := common.Home + "spac/" + "iprange.txt"
+	hf := filepath.Join(common.Home, "spac", "iprange.txt")
 	_, err := os.Stat(hf)
 	if nil != err {
 		var zero time.Time
@@ -366,12 +367,12 @@ func generatePACFromGFWList(url string) {
 	time.Sleep(5 * time.Second)
 	log.Printf("Generate PAC from  gfwlist %s\n", url)
 	load_gfwlist_rule()
-	gfwlist_txt := common.Home + "spac/snova-gfwlist.txt"
+	gfwlist_txt := filepath.Join(common.Home, "spac/snova-gfwlist.txt")
 	var file_ts time.Time
 	if fi, err := os.Stat(gfwlist_txt); nil == err {
 		file_ts = fi.ModTime()
 	}
-	hf := common.Home + "spac/snova-gfwlist.pac"
+	hf := filepath.Join(common.Home, "spac/snova-gfwlist.pac")
 	body, last_mod_date, err := util.FetchLateastContent(url, common.ProxyPort, file_ts, false)
 	if nil == err {
 		content := []byte{}
@@ -407,13 +408,13 @@ func PostInitSpac() {
 
 func InitSpac() {
 	spac = &SpacConfig{}
-	os.Mkdir(common.Home+"spac/", 0755)
+	os.Mkdir(filepath.Join(common.Home, "spac"), 0755)
 	spac.defaultRule, _ = common.Cfg.GetProperty("SPAC", "Default")
 	if len(spac.defaultRule) == 0 {
 		spac.defaultRule = GAE_NAME
 	}
 	//user script has higher priority
-	spac_script_path = []string{common.Home + "spac/user_pre_spac.json", common.Home + "spac/cloud_spac.json", common.Home + "spac/user_spac.json"}
+	spac_script_path = []string{filepath.Join(common.Home, "spac/user_pre_spac.json"), filepath.Join(common.Home, "spac/cloud_spac.json"), filepath.Join(common.Home, "spac/user_spac.json")}
 	spac.rules = make([]*JsonRule, 0)
 	if enable, exist := common.Cfg.GetIntProperty("SPAC", "Enable"); exist {
 		spac_enable = (enable == 1)

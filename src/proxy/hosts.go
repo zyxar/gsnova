@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -42,14 +43,14 @@ var hostInjectRangePatterns = []*regexp.Regexp{}
 var hostRangeConcurrentFether = uint32(5)
 
 func loadDiskHostFile() {
-	files, err := ioutil.ReadDir(common.Home + "hosts/")
+	files, err := ioutil.ReadDir(filepath.Join(common.Home, "hosts/"))
 	if nil == err {
 		for _, file := range files {
 			switch file.Name() {
 			case USER_HOSTS_FILE, CLOUD_HOSTS_FILE:
 				continue
 			}
-			content, err := ioutil.ReadFile(common.Home + "hosts/" + file.Name())
+			content, err := ioutil.ReadFile(filepath.Join(common.Home, "hosts/", file.Name()))
 			if nil == err {
 				reader := bufio.NewReader(strings.NewReader(string(content)))
 				for {
@@ -96,7 +97,7 @@ func loadHostFile() {
 		} else {
 			body, err := ioutil.ReadAll(resp.Body)
 			if nil == err {
-				hf := common.Home + "hosts/" + "hosts_" + strconv.Itoa(index) + ".txt"
+				hf := filepath.Join(common.Home, "hosts/", "hosts_"+strconv.Itoa(index)+".txt")
 				ioutil.WriteFile(hf, body, 0755)
 			}
 		}
@@ -163,7 +164,7 @@ func InitHosts() error {
 		}
 	}
 	log.Println("Init AutoHost.")
-	os.Mkdir(common.Home+"hosts/", 0755)
+	os.Mkdir(filepath.Join(common.Home, "hosts/"), 0755)
 	if dnsserver, exist := common.Cfg.GetProperty("Hosts", "TrustedDNS"); exist {
 		trustedDNS = strings.Split(dnsserver, "|")
 	}

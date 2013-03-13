@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -55,7 +56,7 @@ func loadLocalHostMapping(file string) error {
 func fetchCloudHosts(url string) {
 	time.Sleep(5 * time.Second)
 	log.Printf("Fetch remote clound hosts:%s\n", url)
-	file := common.Home + "hosts/" + CLOUD_HOSTS_FILE
+	file := filepath.Join(common.Home, "hosts/", CLOUD_HOSTS_FILE)
 	var file_ts time.Time
 	if fi, err := os.Stat(file); nil == err {
 		file_ts = fi.ModTime()
@@ -72,9 +73,9 @@ func fetchCloudHosts(url string) {
 }
 
 func loadLocalHostMappings() error {
-	loadLocalHostMapping(common.Home + "hosts/" + CLOUD_HOSTS_FILE)
+	loadLocalHostMapping(filepath.Join(common.Home, "hosts/", CLOUD_HOSTS_FILE))
 	//user hosts has higher priority
-	loadLocalHostMapping(common.Home + "hosts/" + USER_HOSTS_FILE)
+	loadLocalHostMapping(filepath.Join(common.Home, "hosts/", USER_HOSTS_FILE))
 	return nil
 }
 
