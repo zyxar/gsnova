@@ -45,17 +45,17 @@ func (r *rangeBody) WriteHttpBody(body io.Reader) int {
 }
 
 func (r *rangeBody) Read(p []byte) (n int, err error) {
-	if r.closed {
-		return 0, io.EOF
-	}
 	if r.buf.Len() > 0 {
 		return r.buf.Read(p)
+	}
+	if r.closed {
+		return 0, io.EOF
 	}
 	r.buf.Reset()
 	select {
 	case b := <-r.c:
 		if nil == b {
-			r.buf.Reset()
+			r.closed = true
 			return 0, io.EOF
 		}
 		r.buf = b
@@ -96,6 +96,7 @@ type rangeFetchTask struct {
 	req              *http.Request
 	res              *http.Response
 	chunks           map[int]io.ReadCloser
+	chunkMutex       sync.Mutex
 	closed           bool
 }
 
@@ -199,6 +200,7 @@ func (r *rangeFetchTask) processResponse(res *http.Response) error {
 		start, _, _ := util.ParseContentRangeHeaderValue(contentRange)
 		log.Printf("Session[%d]Recv range chunk:%s", r.SessionID, contentRange)
 		body := r.res.Body.(*rangeBody)
+		r.chunkMutex.Lock()
 		if start == r.expectedRangePos {
 			r.expectedRangePos += body.WriteHttpBody(res.Body)
 		} else {
@@ -217,6 +219,7 @@ func (r *rangeFetchTask) processResponse(res *http.Response) error {
 				break
 			}
 		}
+		r.chunkMutex.Unlock()
 	}
 	return nil
 }
@@ -380,7 +383,7 @@ func (r *rangeFetchTask) SyncGet(req *http.Request, firstChunkRes *http.Response
 			retryCount++
 		}
 
-		if nil == err{
+		if nil == err {
 			err = r.processResponse(res)
 		}
 		atomic.AddInt32(&r.rangeWorker, -1)
