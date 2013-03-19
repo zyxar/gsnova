@@ -152,10 +152,10 @@ func (auth *GAEAuth) parse(line string) error {
 
 type GAEHttpConnection struct {
 	//auth               GAEAuth
-	gaeAuth            *GAEAuth
-	support_tunnel     bool
-	over_tunnel        bool
-	inject_range       bool
+	gaeAuth        *GAEAuth
+	support_tunnel bool
+	over_tunnel    bool
+	inject_range   bool
 	//authToken          string
 	sess               *SessionConnection
 	manager            *GAE
@@ -244,6 +244,8 @@ func (gae *GAEHttpConnection) requestEvent(client *http.Client, conn *SessionCon
 	req := &http.Request{
 		Method:        "POST",
 		URL:           &url.URL{Scheme: scheme, Host: addr, Path: "/invoke"},
+		ProtoMajor:    1,
+		ProtoMinor:    1,
 		Host:          addr,
 		Header:        make(http.Header),
 		Body:          ioutil.NopCloser(&buf),
@@ -352,7 +354,7 @@ func (gae *GAEHttpConnection) handleHttpRes(conn *SessionConnection, req *event.
 			}
 		}
 		if length > end+1 {
-			go gae.doRangeFetch(req.RawReq, ev.ToResponse())
+			gae.doRangeFetch(req.RawReq, ev.ToResponse())
 			return nil, nil
 		}
 		if len(originRange) == 0 {
@@ -408,7 +410,7 @@ func (gae *GAEHttpConnection) Request(conn *SessionConnection, ev event.Event) (
 			var httpres *http.Response
 			if strings.EqualFold(httpreq.Method, "GET") {
 				if hostPatternMatched(gae_cfg.InjectRange, httpreq.RawReq.Host) || gae.inject_range {
-					conn.State = STATE_RECV_HTTP
+					//conn.State = STATE_RECV_HTTP
 					gae.doRangeFetch(httpreq.RawReq, nil)
 					return nil, nil
 				}
