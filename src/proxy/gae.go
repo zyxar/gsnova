@@ -258,11 +258,6 @@ func (gae *GAEHttpConnection) requestEvent(client *http.Client, conn *SessionCon
 	req.Close = false
 	req.Header.Set("Connection", "keep-alive")
 	req.Header.Set("Content-Type", "image/jpeg")
-	if proxyInfo, exist := common.Cfg.GetProperty("LocalProxy", "Proxy"); exist {
-		if strings.HasPrefix(proxyInfo, "http://") && strings.Contains(proxyInfo, "Google") {
-			req.Method = string(CRLFs) + "POST"
-		}
-	}
 
 	var response *http.Response
 	response, err = gaeHttpClient.Do(req)
@@ -274,8 +269,8 @@ func (gae *GAEHttpConnection) requestEvent(client *http.Client, conn *SessionCon
 			log.Printf("Session[%d]Invalid response:%d\n", ev.GetHash(), response.StatusCode)
 			return fmt.Errorf("Invalid response:%d", response.StatusCode), nil
 		} else {
-			buf := util.GetBuffer()
-			n, err := io.Copy(buf, response.Body)
+			var buf bytes.Buffer
+			n, err := io.Copy(&buf, response.Body)
 			if int64(n) < response.ContentLength {
 				return fmt.Errorf("No sufficient space in body."), nil
 			}
@@ -283,14 +278,13 @@ func (gae *GAEHttpConnection) requestEvent(client *http.Client, conn *SessionCon
 				return err, nil
 			}
 			response.Body.Close()
-			if !tags.Decode(buf) {
+			if !tags.Decode(&buf) {
 				return fmt.Errorf("Failed to decode event tag"), nil
 			}
-			err, res = event.DecodeEvent(buf)
+			err, res = event.DecodeEvent(&buf)
 			if nil == err {
 				res = event.ExtractEvent(res)
 			}
-			util.RecycleBuffer(buf)
 			return err, res
 		}
 	}
@@ -303,9 +297,9 @@ func (gae *GAEHttpConnection) doRangeFetch(req *http.Request, firstChunkRes *htt
 	task.FetchLimit = int(gae_cfg.FetchLimitSize)
 	task.FetchWorkerNum = int(gae_cfg.ConcurrentRangeFetcher)
 	task.SessionID = gae.sess.SessionID
-	//	task.TaskValidation = func() bool {
-	//		return !util.IsDeadConnection(gae.sess.LocalRawConn)
-	//	}
+	task.TaskValidation = func() bool {
+		return !util.IsDeadConnection(gae.sess.LocalRawConn)
+	}
 	gae.rangeWorker = task
 	fetch := func(preq *http.Request) (*http.Response, error) {
 		ev := new(event.HTTPRequestEvent)
@@ -328,6 +322,7 @@ func (gae *GAEHttpConnection) doRangeFetch(req *http.Request, firstChunkRes *htt
 		err = pres.Write(gae.sess.LocalRawConn)
 		if nil != err {
 			task.Close()
+			gae.rangeWorker = nil
 		}
 		if nil != pres.Body {
 			pres.Body.Close()
@@ -339,6 +334,7 @@ func (gae *GAEHttpConnection) doRangeFetch(req *http.Request, firstChunkRes *htt
 	if nil != err || !util.IsResponseKeepAlive(pres) || !util.IsRequestKeepAlive(req) {
 		gae.sess.LocalRawConn.Close()
 		gae.sess.State = STATE_SESSION_CLOSE
+		gae.Close()
 	}
 }
 
@@ -435,6 +431,7 @@ func (gae *GAEHttpConnection) Request(conn *SessionConnection, ev event.Event) (
 			if nil != err || !util.IsResponseKeepAlive(httpres) || !util.IsRequestKeepAlive(httpreq.RawReq) {
 				conn.LocalRawConn.Close()
 				conn.State = STATE_SESSION_CLOSE
+				gae.Close()
 			}
 			return err, nil
 		}
