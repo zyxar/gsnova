@@ -190,7 +190,7 @@ func getGoogleHostport(isHttps bool) string {
 		addr = net.JoinHostPort(addr, "443")
 	}
 	if !preferIP {
-		addr, _ = lookupAvailableAddress(addr)
+		addr, _ = lookupAvailableAddress(addr, true)
 	}
 	return addr
 }
@@ -247,6 +247,7 @@ func initGoogleHttpClients() {
 		Dial:                httpDial,
 		Proxy:               proxyFunc,
 		MaxIdleConnsPerHost: 20,
+		ResponseHeaderTimeout: 10 * time.Second,
 	}
 
 	httpsGoogleClient.Transport = &http.Transport{
@@ -254,6 +255,7 @@ func initGoogleHttpClients() {
 		Dial:                httpsDial,
 		Proxy:               proxyFunc,
 		MaxIdleConnsPerHost: 20,
+		ResponseHeaderTimeout: 10 * time.Second,
 	}
 }
 

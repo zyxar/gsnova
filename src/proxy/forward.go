@@ -31,9 +31,9 @@ type ForwardConnection struct {
 	forwardChan      chan int
 	manager          *Forward
 	use_sys_dns      bool
+	prefer_hosts     bool
 	closed           bool
-
-	checkChannel chan int
+	checkChannel     chan int
 }
 
 func (conn *ForwardConnection) Close() error {
@@ -52,17 +52,6 @@ func (conn *ForwardConnection) IsClosed() bool {
 	return true
 }
 
-func createDirectForwardConn(hostport string) (net.Conn, error) {
-	addr, _ := lookupAvailableAddress(hostport)
-	conn, err := net.DialTimeout("tcp", addr, 2*time.Second)
-	if nil != err {
-		conn, err = net.DialTimeout("tcp", addr, 4*time.Second)
-	}
-	if nil != err {
-		expireBlockVerifyCache(addr)
-	}
-	return conn, err
-}
 
 func (conn *ForwardConnection) dialRemote(addr string, lookup_trusted_dns bool) (net.Conn, error) {
 	timeout := 10 * time.Second
@@ -73,7 +62,7 @@ func (conn *ForwardConnection) dialRemote(addr string, lookup_trusted_dns bool) 
 	//		}
 	//	}
 	if lookup_trusted_dns {
-		if newaddr, success := lookupAvailableAddress(addr); !success {
+		if newaddr, success := lookupAvailableAddress(addr, !conn.prefer_hosts); !success {
 			return nil, fmt.Errorf("No available IP found for %s", addr)
 		} else {
 			log.Printf("Found %s for %s\n", newaddr, addr)
@@ -82,7 +71,7 @@ func (conn *ForwardConnection) dialRemote(addr string, lookup_trusted_dns bool) 
 	}
 	c, err := net.DialTimeout("tcp", addr, timeout)
 	if nil != err && !lookup_trusted_dns {
-		if tmp, success := lookupAvailableAddress(addr); success {
+		if tmp, success := lookupAvailableAddress(addr, !conn.prefer_hosts); success {
 			//conn.try_inject_crlf = true
 			c, err = net.DialTimeout("tcp", tmp, timeout)
 		}
@@ -289,6 +278,9 @@ func (manager *Forward) GetRemoteConnection(ev event.Event, attrs map[string]str
 	}
 	if containsAttr(attrs, ATTR_SYS_DNS) {
 		g.use_sys_dns = true
+	}
+	if containsAttr(attrs, ATTR_PREFER_HOSTS) {
+		g.prefer_hosts = true
 	}
 	atomic.AddInt32(&total_forwared_conn_num, 1)
 	return g, nil
