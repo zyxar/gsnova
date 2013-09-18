@@ -3,7 +3,6 @@ package proxy
 import (
 	"bufio"
 	"bytes"
-	"github.com/zyxar/gsnova/src/common"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -16,6 +15,8 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/zyxar/gsnova/src/common"
 	"github.com/zyxar/gsnova/src/util"
 )
 

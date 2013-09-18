@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	//"log"
 	"io"
 	"math"
 	"net"
@@ -36,7 +35,7 @@ func IsDeadConnection(c net.Conn) bool {
 	}
 	c.SetReadDeadline(time.Now())
 	if _, err := c.Read(make([]byte, 0)); err == io.EOF {
-	    c.Close()
+		c.Close()
 		return true
 	} else {
 		var zero time.Time

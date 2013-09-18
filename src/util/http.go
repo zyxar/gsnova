@@ -2,7 +2,6 @@ package util
 
 import (
 	"bufio"
-	//"bytes"
 	"crypto/tls"
 	"errors"
 	"io"

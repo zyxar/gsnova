@@ -51,12 +51,12 @@ func (ini *Ini) Load(is io.Reader) (err error) {
 					value := strings.TrimSpace(line[idx+1:])
 					ini.SetProperty(currenttag, key, value)
 				}
-//				splits := strings.Split(line, "=")
-//				if len(splits) >= 2 {
-//					key := strings.TrimSpace(splits[0])
-//					value := strings.TrimSpace(splits[1])
-//					ini.SetProperty(currenttag, key, value)
-//				}
+				//				splits := strings.Split(line, "=")
+				//				if len(splits) >= 2 {
+				//					key := strings.TrimSpace(splits[0])
+				//					value := strings.TrimSpace(splits[1])
+				//					ini.SetProperty(currenttag, key, value)
+				//				}
 			}
 		}
 	}

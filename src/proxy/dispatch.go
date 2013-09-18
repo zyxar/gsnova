@@ -2,15 +2,16 @@ package proxy
 
 import (
 	"bufio"
-	"github.com/zyxar/gsnova/src/event"
 	"fmt"
 	"io"
 	"log"
-	"github.com/zyxar/gsnova/src/misc/socks"
 	"net"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/zyxar/gsnova/src/event"
+	"github.com/zyxar/gsnova/src/misc/socks"
 	"github.com/zyxar/gsnova/src/util"
 )
 

@@ -2,11 +2,12 @@ package proxy
 
 import (
 	"log"
-	"github.com/zyxar/gsnova/src/misc/gfwlist"
-	"github.com/zyxar/gsnova/src/misc/iprange"
 	"net"
 	"net/http"
 	"strings"
+
+	"github.com/zyxar/gsnova/src/misc/gfwlist"
+	"github.com/zyxar/gsnova/src/misc/iprange"
 )
 
 var gfwList *gfwlist.GFWList

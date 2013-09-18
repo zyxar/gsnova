@@ -3,9 +3,7 @@ package proxy
 import (
 	"bufio"
 	"bytes"
-	"github.com/zyxar/gsnova/src/common"
 	"crypto/tls"
-	"github.com/zyxar/gsnova/src/event"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -16,8 +14,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"github.com/zyxar/gsnova/src/util"
 	"time"
+
+	"github.com/zyxar/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/event"
+	"github.com/zyxar/gsnova/src/util"
 )
 
 const (
@@ -380,11 +381,11 @@ func (gae *GAEHttpConnection) Request(conn *SessionConnection, ev event.Event) (
 	if ev.GetType() == event.HTTP_REQUEST_EVENT_TYPE {
 		httpreq := ev.(*event.HTTPRequestEvent)
 		if strings.EqualFold(httpreq.Method, "CONNECT") {
-//			//try https over tunnel
-//			if gae.gaeAuth.support_tunnel {
-//				gae.over_tunnel = true
-//				return gae.requestOverTunnel(conn, ev)
-//			}
+			//			//try https over tunnel
+			//			if gae.gaeAuth.support_tunnel {
+			//				gae.over_tunnel = true
+			//				return gae.requestOverTunnel(conn, ev)
+			//			}
 			log.Printf("Session[%d]Request %s\n", httpreq.GetHash(), util.GetURLString(httpreq.RawReq, true))
 			conn.LocalRawConn.Write([]byte("HTTP/1.1 200 Connection established\r\n\r\n"))
 			tlscfg, err := common.TLSConfig(httpreq.GetHeader("Host"))

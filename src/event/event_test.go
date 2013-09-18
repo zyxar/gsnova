@@ -2,8 +2,6 @@ package event
 
 import (
 	"bytes"
-	//	"fmt"
-	//	"reflect"
 	"testing"
 	"time"
 )

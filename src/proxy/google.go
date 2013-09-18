@@ -2,9 +2,7 @@ package proxy
 
 import (
 	"bytes"
-	"github.com/zyxar/gsnova/src/common"
 	"crypto/tls"
-	"github.com/zyxar/gsnova/src/event"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +12,9 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/zyxar/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/event"
 	"github.com/zyxar/gsnova/src/util"
 )
 
@@ -141,7 +142,7 @@ func (google *GoogleConnection) Request(conn *SessionConnection, ev event.Event)
 				conn.LocalRawConn.Close()
 				conn.State = STATE_SESSION_CLOSE
 			} else {
-			    log.Printf("Session[%d]Res %d %v\n", req.GetHash(), resp.StatusCode, resp.Header)
+				log.Printf("Session[%d]Res %d %v\n", req.GetHash(), resp.StatusCode, resp.Header)
 				conn.State = STATE_RECV_HTTP
 			}
 		}
@@ -243,18 +244,18 @@ func initGoogleHttpClients() {
 	}
 
 	httpGoogleClient.Transport = &http.Transport{
-		DisableCompression:  true,
-		Dial:                httpDial,
-		Proxy:               proxyFunc,
-		MaxIdleConnsPerHost: 20,
+		DisableCompression:    true,
+		Dial:                  httpDial,
+		Proxy:                 proxyFunc,
+		MaxIdleConnsPerHost:   20,
 		ResponseHeaderTimeout: 10 * time.Second,
 	}
 
 	httpsGoogleClient.Transport = &http.Transport{
-		DisableCompression:  true,
-		Dial:                httpsDial,
-		Proxy:               proxyFunc,
-		MaxIdleConnsPerHost: 20,
+		DisableCompression:    true,
+		Dial:                  httpsDial,
+		Proxy:                 proxyFunc,
+		MaxIdleConnsPerHost:   20,
 		ResponseHeaderTimeout: 10 * time.Second,
 	}
 }

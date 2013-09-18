@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"container/list"
 	"fmt"
-	//"io/ioutil"
 	"net"
 	"net/http"
 	"strconv"
 	"strings"
+
 	"github.com/zyxar/gsnova/src/util"
 )
 

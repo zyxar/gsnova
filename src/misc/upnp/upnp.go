@@ -128,7 +128,7 @@ type Device struct {
 //}
 
 type Root struct {
-	//    SpecVersion SpecVersion 
+	//    SpecVersion SpecVersion
 	//    URLBase string
 	Device Device
 }
@@ -387,9 +387,9 @@ func (n *upnpNAT) GetExternalIPAddress() (string, error) {
 			retriveIP = true
 		}
 		content, ok := t.(xml.CharData)
-		if ok && retriveIP{
-		   ip = strings.TrimSpace(string(content))
-		   break
+		if ok && retriveIP {
+			ip = strings.TrimSpace(string(content))
+			break
 		}
 	}
 	return ip, nil

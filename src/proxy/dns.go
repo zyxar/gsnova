@@ -1,10 +1,11 @@
 package proxy
 
 import (
-	"github.com/yinqiwen/godns"
 	"net"
 	"sync"
 	"time"
+
+	"github.com/yinqiwen/godns"
 )
 
 var blockVerifyCache = make(map[string]bool)

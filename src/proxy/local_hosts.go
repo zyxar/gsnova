@@ -1,7 +1,6 @@
 package proxy
 
 import (
-	"github.com/zyxar/gsnova/src/common"
 	"io/ioutil"
 	"log"
 	"net"
@@ -10,6 +9,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/zyxar/gsnova/src/common"
 	"github.com/zyxar/gsnova/src/util"
 )
 

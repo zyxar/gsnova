@@ -3,18 +3,19 @@ package proxy
 import (
 	"bufio"
 	"bytes"
-	"github.com/zyxar/gsnova/src/common"
-	"github.com/zyxar/gsnova/src/event"
 	"fmt"
 	"io"
 	"log"
-	"github.com/zyxar/gsnova/src/misc/socks"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/zyxar/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/event"
+	"github.com/zyxar/gsnova/src/misc/socks"
 	"github.com/zyxar/gsnova/src/util"
 )
 
@@ -51,7 +52,6 @@ func (conn *ForwardConnection) IsClosed() bool {
 	}
 	return true
 }
-
 
 func (conn *ForwardConnection) dialRemote(addr string, lookup_trusted_dns bool) (net.Conn, error) {
 	timeout := 10 * time.Second

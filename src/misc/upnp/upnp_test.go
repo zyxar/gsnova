@@ -9,7 +9,7 @@ func TestXYZ(t *testing.T) {
 	if nil != err {
 		t.Error("Failed to Discover:" + err.Error())
 	} else {
-	    //var ip string
+		//var ip string
 		//err = nat.AddPortMapping("TCP", 48101, 48101, "GSnova", 3000)
 		//err = nat.AddPortMapping("UDP", 48101, 48101, "GSnova", 3000)
 		//err = nat.DeletePortMapping("TCP", 48101)

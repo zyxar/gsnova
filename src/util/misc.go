@@ -5,7 +5,6 @@ import (
 	"crypto/dsa"
 	"fmt"
 	"math/big"
-	"github.com/zyxar/gsnova/src/misc/myasn1"
 	"net"
 	"net/http"
 	"os/exec"
@@ -13,6 +12,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/zyxar/gsnova/src/misc/myasn1"
 )
 
 var freeList = make(chan *bytes.Buffer, 20)
@@ -49,7 +50,7 @@ func (b *BufferCloseWrapper) Read(p []byte) (n int, err error) {
 }
 
 func (b *BufferCloseWrapper) Close() error {
-    b.Buf.Reset()
+	b.Buf.Reset()
 	return nil
 }
 

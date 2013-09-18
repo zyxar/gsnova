@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
-	"github.com/zyxar/gsnova/src/event"
 	"fmt"
 	"log"
 	"net"
@@ -12,6 +11,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/zyxar/gsnova/src/event"
 )
 
 func wsReadTask(ws net.Conn, ch chan event.Event) {
@@ -55,7 +56,7 @@ func wsC4Routine(server string, index int, ch chan event.Event) error {
 			if len(u.Path) == 0 {
 				u.Path = "/"
 			}
-			request := fmt.Sprintf("GET / HTTP/1.1\r\nUpgrade: WebSocket\r\nHost: %s\r\nConnection: Upgrade\r\nConnectionIndex:%d\r\nUserToken:%s\r\nKeep-Alive: %d\r\n\r\n",  u.Host, index, userToken, c4_cfg.WSConnKeepAlive)
+			request := fmt.Sprintf("GET / HTTP/1.1\r\nUpgrade: WebSocket\r\nHost: %s\r\nConnection: Upgrade\r\nConnectionIndex:%d\r\nUserToken:%s\r\nKeep-Alive: %d\r\n\r\n", u.Host, index, userToken, c4_cfg.WSConnKeepAlive)
 			addr := u.Host
 			if !strings.Contains(u.Host, ":") {
 				addr = net.JoinHostPort(u.Host, "80")

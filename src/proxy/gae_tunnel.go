@@ -1,12 +1,13 @@
 package proxy
 
 import (
-	"github.com/zyxar/gsnova/src/event"
 	"log"
 	"net"
 	"net/http/httputil"
 	"strings"
 	"time"
+
+	"github.com/zyxar/gsnova/src/event"
 	"github.com/zyxar/gsnova/src/util"
 )
 

@@ -2,11 +2,10 @@ package event
 
 import (
 	"bytes"
-	"code.google.com/p/snappy-go/snappy"
 	"errors"
-//	"github.com/bkaradzic/go-lz4"
-//	"io/ioutil"
 	"strconv"
+
+	"code.google.com/p/snappy-go/snappy"
 )
 
 type CompressEvent struct {
@@ -29,9 +28,9 @@ func (ev *CompressEvent) Encode(buffer *bytes.Buffer) {
 		evbuf := make([]byte, 0)
 		newbuf, _ := snappy.Encode(evbuf, buf.Bytes())
 		buffer.Write(newbuf)
-//	case COMPRESSOR_LZ4:
-//		newbuf, _ := ioutil.ReadAll(lz4.NewWriter(&buf))
-//		buffer.Write(newbuf)
+		//	case COMPRESSOR_LZ4:
+		//		newbuf, _ := ioutil.ReadAll(lz4.NewWriter(&buf))
+		//		buffer.Write(newbuf)
 	}
 	buf.Reset()
 }
@@ -55,13 +54,13 @@ func (ev *CompressEvent) Decode(buffer *bytes.Buffer) (err error) {
 		err, ev.Ev = DecodeEvent(tmpbuf)
 		tmpbuf.Reset()
 		return err
-//	case COMPRESSOR_LZ4:
-//		lz4r := lz4.NewReader(buffer)
-//		data, _ := ioutil.ReadAll(lz4r)
-//		tmpbuf := bytes.NewBuffer(data)
-//		err, ev.Ev = DecodeEvent(tmpbuf)
-//		tmpbuf.Reset()
-//		return err
+		//	case COMPRESSOR_LZ4:
+		//		lz4r := lz4.NewReader(buffer)
+		//		data, _ := ioutil.ReadAll(lz4r)
+		//		tmpbuf := bytes.NewBuffer(data)
+		//		err, ev.Ev = DecodeEvent(tmpbuf)
+		//		tmpbuf.Reset()
+		//		return err
 	default:
 		return errors.New("Not supported compress type:" + strconv.Itoa(int(ev.CompressType)))
 	}
@@ -97,10 +96,10 @@ func (ev *CompressEventV2) Encode(buffer *bytes.Buffer) {
 		newbuf, _ := snappy.Encode(evbuf, buf.Bytes())
 		EncodeUInt64Value(buffer, uint64(len(newbuf)))
 		buffer.Write(newbuf)
-//	case COMPRESSOR_LZ4:
-//		newbuf, _ := ioutil.ReadAll(lz4.NewWriter(&buf))
-//		EncodeUInt64Value(buffer, uint64(len(newbuf)))
-//		buffer.Write(newbuf)
+		//	case COMPRESSOR_LZ4:
+		//		newbuf, _ := ioutil.ReadAll(lz4.NewWriter(&buf))
+		//		EncodeUInt64Value(buffer, uint64(len(newbuf)))
+		//		buffer.Write(newbuf)
 	}
 	buf.Reset()
 }
@@ -128,13 +127,13 @@ func (ev *CompressEventV2) Decode(buffer *bytes.Buffer) (err error) {
 		err, ev.Ev = DecodeEvent(tmpbuf)
 		tmpbuf.Reset()
 		return err
-//	case COMPRESSOR_LZ4:
-//		lz4r := lz4.NewReader(bytes.NewBuffer(buffer.Next(int(length))))
-//		data, _ := ioutil.ReadAll(lz4r)
-//		tmpbuf := bytes.NewBuffer(data)
-//		err, ev.Ev = DecodeEvent(tmpbuf)
-//		tmpbuf.Reset()
-//		return err
+		//	case COMPRESSOR_LZ4:
+		//		lz4r := lz4.NewReader(bytes.NewBuffer(buffer.Next(int(length))))
+		//		data, _ := ioutil.ReadAll(lz4r)
+		//		tmpbuf := bytes.NewBuffer(data)
+		//		err, ev.Ev = DecodeEvent(tmpbuf)
+		//		tmpbuf.Reset()
+		//		return err
 	default:
 		return errors.New("Not supported compress type:" + strconv.Itoa(int(ev.CompressType)))
 	}

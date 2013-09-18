@@ -2,11 +2,9 @@ package proxy
 
 import (
 	"bytes"
-	"github.com/zyxar/gsnova/src/common"
 	"crypto/tls"
 	"encoding/binary"
 	"errors"
-	"github.com/zyxar/gsnova/src/event"
 	"io"
 	"log"
 	"net"
@@ -17,8 +15,11 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-	"github.com/zyxar/gsnova/src/util"
 	"time"
+
+	"github.com/zyxar/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/event"
+	"github.com/zyxar/gsnova/src/util"
 )
 
 var C4Enable bool
@@ -504,7 +505,7 @@ func (manager *C4) Init() error {
 			}
 			return url.Parse(c4_cfg.Proxy)
 		},
-		ResponseHeaderTimeout: time.Duration(c4_cfg.ReadTimeout + 1) * time.Second,
+		ResponseHeaderTimeout: time.Duration(c4_cfg.ReadTimeout+1) * time.Second,
 	}
 	c4HttpClient.Transport = tr
 

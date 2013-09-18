@@ -1,19 +1,20 @@
 package main
 
 import (
-	"github.com/zyxar/gsnova/src/common"
-	"github.com/zyxar/gsnova/src/event"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"path/filepath"
-	"github.com/zyxar/gsnova/src/proxy"
-	"github.com/zyxar/gsnova/src/remote"
 	"runtime"
 	"sync/atomic"
 	"time"
+
+	"github.com/zyxar/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/event"
+	"github.com/zyxar/gsnova/src/proxy"
+	"github.com/zyxar/gsnova/src/remote"
 	"github.com/zyxar/gsnova/src/util"
 )
 

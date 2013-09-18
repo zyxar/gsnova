@@ -2,8 +2,6 @@ package proxy
 
 import (
 	"bufio"
-	"code.google.com/p/go.crypto/ssh"
-	"github.com/zyxar/gsnova/src/common"
 	"crypto"
 	"crypto/dsa"
 	"crypto/rsa"
@@ -11,9 +9,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	"github.com/zyxar/gsnova/src/event"
 	"fmt"
-	"github.com/yinqiwen/godns"
 	"io"
 	"io/ioutil"
 	"log"
@@ -23,6 +19,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"code.google.com/p/go.crypto/ssh"
+	"github.com/yinqiwen/godns"
+	"github.com/zyxar/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/event"
 	"github.com/zyxar/gsnova/src/util"
 )
 
@@ -118,7 +119,7 @@ func (conn *SSHConnection) Request(sess *SessionConnection, ev event.Event) (err
 				conn.ssh_conn.CloseConn()
 				return err, nil
 			}
-			conn.proxy_conn.SetReadDeadline(time.Now().Add(10*time.Second))
+			conn.proxy_conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 			resp, err := http.ReadResponse(conn.proxy_conn_reader, req.RawReq)
 			if err != nil {
 				conn.ssh_conn.CloseConn()
@@ -241,15 +242,15 @@ type keychain struct {
 	keys []interface{}
 }
 
-func (k *keychain) Key(i int) (interface{}, error) {
+func (k *keychain) Key(i int) (ssh.PublicKey, error) {
 	if i < 0 || i >= len(k.keys) {
 		return nil, nil
 	}
 	switch key := k.keys[i].(type) {
 	case *rsa.PrivateKey:
-		return &key.PublicKey, nil
+		return ssh.NewRSAPublicKey(&key.PublicKey), nil
 	case *dsa.PrivateKey:
-		return &key.PublicKey, nil
+		return ssh.NewDSAPublicKey(&key.PublicKey), nil
 	}
 	panic("unknown key type")
 }

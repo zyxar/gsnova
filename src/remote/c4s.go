@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"github.com/zyxar/gsnova/src/event"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -15,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/zyxar/gsnova/src/event"
 )
 
 var port = func() string {
@@ -225,7 +226,7 @@ func check_rsock_conn(user, server, addr string, pool_size int) {
 		}
 		accept := &event.RSocketAcceptedEvent{}
 		accept.Server = server
-		send_evs[user][len(conns) - 1] <- accept
+		send_evs[user][len(conns)-1] <- accept
 	}
 }
 
@@ -454,7 +455,6 @@ func InvokeCallback(w http.ResponseWriter, req *http.Request) {
 func IndexCallback(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, html)
 }
-
 
 func LaunchC4HttpServer() {
 	http.HandleFunc("/", IndexCallback)

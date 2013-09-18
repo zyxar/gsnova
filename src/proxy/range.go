@@ -11,6 +11,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
 	"github.com/zyxar/gsnova/src/util"
 )
 

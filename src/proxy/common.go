@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -8,16 +9,16 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"bytes"
+
 	"github.com/zyxar/gsnova/src/util"
 )
 
-func containsAttr(attrs map[string]string, key string) bool{
-   if nil == attrs{
-      return false
-   }
-   _, exist := attrs[key]
-   return exist
+func containsAttr(attrs map[string]string, key string) bool {
+	if nil == attrs {
+		return false
+	}
+	_, exist := attrs[key]
+	return exist
 }
 
 func redirectHttps(conn net.Conn, req *http.Request) {
@@ -48,7 +49,7 @@ func initHostMatchRegex(pattern string) []*regexp.Regexp {
 func hostPatternMatched(patterns []*regexp.Regexp, host string) bool {
 	for _, regex := range patterns {
 		if regex.MatchString(host) {
-		    //log.Printf("#######Pattern is %s for host %s\n", regex.String(), host)
+			//log.Printf("#######Pattern is %s for host %s\n", regex.String(), host)
 			return true
 		}
 	}
@@ -56,13 +57,13 @@ func hostPatternMatched(patterns []*regexp.Regexp, host string) bool {
 }
 
 type rangeChunk struct {
-	start   int
+	start int
 	//content []byte
 	content *bytes.Buffer
 }
 
 type rangeReader struct {
-	start   int
+	start  int
 	length int
-	reader  io.ReadCloser
+	reader io.ReadCloser
 }

@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"os"
-	//"syscall"
 )
 
 var logWriter *MultiWriter
@@ -53,7 +52,6 @@ func initLogWriter(path string) *MultiWriter {
 	logWriter = writer
 	return writer
 }
-
 
 func AddLogWriter(writer io.Writer) {
 	logWriter.writers = append(logWriter.writers, writer)

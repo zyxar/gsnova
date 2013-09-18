@@ -2,18 +2,18 @@ package proxy
 
 import (
 	"bytes"
-	"github.com/zyxar/gsnova/src/common"
 	"crypto/rc4"
 	"encoding/base64"
-	"github.com/zyxar/gsnova/src/event"
 	"fmt"
-	//"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/zyxar/gsnova/src/common"
+	"github.com/zyxar/gsnova/src/event"
 )
 
 var httpTunnelServiceTable = make(map[string]*httpTunnelService)

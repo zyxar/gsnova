@@ -5,6 +5,7 @@ import (
 	"crypto/rc4"
 	"errors"
 	"strconv"
+
 	"github.com/zyxar/gsnova/src/util"
 )
 
