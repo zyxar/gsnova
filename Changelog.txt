@@ -1,5 +1,14 @@
 GSnova Changelog
 ===================
+Changes in version 0.22.a(2013.09.19)
+-------------------------------------------
+** Features
+   * Go get-able
+   * Different HOME on various platforms
+   
+** Improvement
+   * Restructure directories
+
 Changes in version 0.22.1(2013.06.15)
 -------------------------------------------
 ** Features

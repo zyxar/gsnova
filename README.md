@@ -13,10 +13,50 @@
 
 安装客户端
 --------
->客户端为zip包，解压即可；目前预编译支持的有Windows（32/64位）， Linux（64位），Mac（64位）。   
-用户按照[配置]一节修改配置后，即可启动gsnova。 windows用户直接执行gsnova.exe即可，Linux/Mac用户需要在命令行下启动gsnova程序。   
-用户还需要修改浏览器的代理地址为127.0.0.1:48100， 或者在支持PAC设置的浏览器中设置PAC地址为http://127.0.0.1:48100/pac/gfwlist       
-[下载](http://code.google.com/p/snova/downloads/list)
+>* 首先，需要安装Go编译器，[安装指南](http://golang.org/doc/install)；   
+
+    export GOPATH=$HOME/go
+
+>* `go get` 方式：
+
+    go get -v github.com/zyxar/gsnova
+
+可执行文件编译到了 `$GOPATH/bin`。
+
+>*  或者用 `git` 下载
+
+    go get -u code.google.com/p/go.crypto
+    go get -u code.google.com/p/go.net
+    go get -u code.google.com/p/snappy-go
+    go get -u github.com/yinqiwen/godns   // 下载更新依赖的godns
+    git clone https://github.com/zyxar/gsnova.git
+    cd gsnova
+    go build
+
+可执行文件编译到了当前目录下。
+
+
+可执行文件依赖 Home 文件夾以尋找conf，web等目录下文件：
+
+- OS X, BSD, Linux
+    
+    Home 爲 `${HOME}/.gsnova`
+
+- Linux/arm (Android)
+    
+    Home 爲 `/sdcard/gsnova`
+
+- Windows
+    
+    Home 爲 可執行文件所在目錄
+
+
+用户按照[配置]一节修改配置后，即可启动gsnova。 windows用户直接执行gsnova.exe即可，Linux/Mac用户需要在命令行下启动gsnova程序。
+用户还需要修改浏览器的代理地址为127.0.0.1:48100，者在支持PAC设置的浏览器中设置PAC地址为http://127.0.0.1:48100/pac/gfwlist
+
+
+[原版ZIP下载目錄](http://code.google.com/p/snova/downloads/list)
+
 
 配置
 -------
@@ -80,36 +120,6 @@ SPAC主要是一组规则，规则文件以JSON格式定义，例如：
        }
        含义为若访问的目的站点域名匹配Hots中任意一个正则表达式，则选择Proxy中的三个Proxy。gsnova在三个Proxy优先选择第一个Proxy，若失败，则尝试第二个；若仍失败，则尝试第三个。  
        更多的参考spac目录下的cloud_spac.json，目前内置了一些规则实现。
-
-
-自行编译
--------
-> 有自行修改需求的用户请看这里：
->* 首先，需要安装Go编译器，[安装指南](http://golang.org/doc/install)；   
-    主要设置两个环境变量：
-
-    export GOROOT=$HOME/go   //注意设置为Go编译器安装地址
-    export PATH=$PATH:$GOROOT/bin
-
->* 下载gnsova源码：
-
-    go get -u code.google.com/p/go.crypto
-    go get -u code.google.com/p/go.net
-    go get -u code.google.com/p/snappy-go
-    go get -u github.com/yinqiwen/godns   // 下载更新依赖的godns
-    go get -v github.com/zyxar/gsnova
-
->  或者用git下载
-
-    cd $GOPATH/src/github.com
-    git clone https://github.com/zyxar/gsnova.git
-
->* 编译   
-
-    cd $GOPATH/src/github.com/zyxar/gosnova/src/main
-    go build
-
-可执行文件编译到了当前目录下。注意此可执行文件依赖conf，web等目录下文件，不能直接运行。
 
 
 其它
